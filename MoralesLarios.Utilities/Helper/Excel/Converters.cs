@@ -11,6 +11,18 @@ namespace MoralesLarios.Utilities.Helper.Excel
     {
         public static object ConverterTo(string valor, PropertyInfo propiedad)
         {
+            if (propiedad.PropertyType.IsEnum)
+            {
+                try
+                {
+                    return Enum.Parse(propiedad.PropertyType, valor, true);
+                }
+                catch(Exception ex)
+                {
+                    throw new Exception(string.Format("General error fro the type {0}. For more info see InnerException", propiedad.PropertyType.FullName.Split('`')[0]), ex);
+                }
+            }
+
 
             string fullNameTipe = propiedad.PropertyType.FullName.Split('`')[0];
 
@@ -31,6 +43,7 @@ namespace MoralesLarios.Utilities.Helper.Excel
                         case "System.Decimal" : resultado = decimal.Parse(valor); break;
                         case "System.Int64"   : resultado = long.Parse(valor); break;
                         case "System.Boolean": resultado = bool.Parse(valor); break;
+                        case "System.Single": resultado = float.Parse(valor); break;
                         case "System.Nullable":
                             string tipoDelNulable = propiedad.PropertyType.FullName.Split('`')[1];
                             if (tipoDelNulable.Contains("System.DateTime")) resultado = string.IsNullOrEmpty(valor) ? null : (DateTime?)DateTime.Parse(valor);
@@ -42,6 +55,7 @@ namespace MoralesLarios.Utilities.Helper.Excel
                             if (tipoDelNulable.Contains("System.Decimal")) resultado = string.IsNullOrEmpty(valor) ? null : (decimal?)decimal.Parse(valor);
                             if (tipoDelNulable.Contains("System.Int64")) resultado = string.IsNullOrEmpty(valor) ? null : (long?)long.Parse(valor);
                             if (tipoDelNulable.Contains("System.Boolean")) resultado = string.IsNullOrEmpty(valor) ? null : (bool?)bool.Parse(valor);
+                            if (tipoDelNulable.Contains("System.Single")) resultado = string.IsNullOrEmpty(valor) ? null : (float?)float.Parse(valor);
                             break;
 
                         default: throw new Exception(string.Format("The type {0} is not sopported for this assembly.", fullNameTipe));
